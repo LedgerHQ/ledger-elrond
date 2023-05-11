@@ -45,14 +45,14 @@
 #define OFFSET_CDATA 5
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
-esdt_info_t esdt_info;
+esdt_info_t G_esdt_info;
 
 #ifdef HAVE_BAGL
 void io_seproxyhal_display(const bagl_element_t *element);
 #endif
 
 void handle_apdu(volatile unsigned int *flags, volatile unsigned int *tx);
-void elrond_main(void);
+void app_main(void);
 unsigned char io_event(unsigned char channel);
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len);
 void app_exit(void);
@@ -144,7 +144,7 @@ void handle_apdu(volatile unsigned int *flags, volatile unsigned int *tx) {
                 case INS_PROVIDE_ESDT_INFO:
                     ret = handle_provide_ESDT_info(G_io_apdu_buffer + OFFSET_CDATA,
                                                    G_io_apdu_buffer[OFFSET_LC],
-                                                   &esdt_info);
+                                                   &G_esdt_info);
                     THROW(ret);
                     break;
 
@@ -181,14 +181,14 @@ void handle_apdu(volatile unsigned int *flags, volatile unsigned int *tx) {
     END_TRY;
 }
 
-void elrond_main(void) {
+void app_main(void) {
     volatile unsigned int rx = 0;
     volatile unsigned int tx = 0;
     volatile unsigned int flags = 0;
 
     init_msg_context();
     init_tx_context();
-    esdt_info.valid = false;
+    G_esdt_info.valid = false;
 
     // DESIGN NOTE: the bootloader ignores the way APDU are fetched. The only
     // goal is to retrieve APDU.
@@ -282,6 +282,7 @@ unsigned char io_event(unsigned char channel) {
                 THROW(EXCEPTION_IO_RESET);
             }
             /* fallthrough */
+            __attribute__((fallthrough));
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
 #ifdef HAVE_BAGL
             UX_DISPLAYED_EVENT({});
@@ -390,7 +391,7 @@ __attribute__((section(".boot"))) int main(void) {
                 BLE_power(1, "Nano X");
 #endif  // HAVE_BLE
 
-                elrond_main();
+                app_main();
             }
             CATCH(EXCEPTION_IO_RESET) {
                 // reset IO and UX before continuing

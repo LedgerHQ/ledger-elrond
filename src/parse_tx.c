@@ -18,7 +18,7 @@ static void set_message_in_amount(const char *message);
 
 // make the eGLD/token amount look pretty. Add decimals, decimal point and
 // ticker name
-bool make_amount_pretty(char *amount, size_t max_size, char *ticker, int decimals_places) {
+static bool make_amount_pretty(char *amount, size_t max_size, const char *ticker, int decimals_places) {
     int len = strlen(amount);
     if ((size_t) len + PRETTY_SIZE >= max_size) {
         return false;
@@ -259,7 +259,7 @@ static void extract_esdt_value(const char *encoded_data_field, const uint8_t enc
     if (encoded_data_length == 0) {
         return;
     }
-    char data_field[encoded_data_length];
+    char data_field[MAX_DATA_SIZE_DECODED];
     if (!base64decode(data_field, encoded_data_field, encoded_data_length)) {
         return;
     }
@@ -302,7 +302,7 @@ static void extract_esdt_value(const char *encoded_data_field, const uint8_t enc
 // verify "chainID" field
 uint16_t verify_chainid(bool *valid) {
     if (strncmp(tx_hash_context.current_field, CHAINID_FIELD, strlen(CHAINID_FIELD)) == 0) {
-        char *ticker = TICKER_TESTNET;
+        const char *ticker = TICKER_TESTNET;
         if (strncmp(tx_hash_context.current_value, MAINNET_CHAIN_ID, strlen(MAINNET_CHAIN_ID)) ==
             0) {
             ticker = TICKER_MAINNET;
@@ -603,14 +603,14 @@ uint16_t parse_esdt_data() {
         return ERR_INVALID_AMOUNT;
     }
 
-    if (!esdt_info.valid) {
+    if (!G_esdt_info.valid) {
         return ERR_INVALID_ESDT;
     }
 
     if (!make_amount_pretty(amount,
                             strlen(amount) + MAX_TICKER_LEN + PRETTY_SIZE + 1,
-                            esdt_info.ticker,
-                            esdt_info.decimals)) {
+                            G_esdt_info.ticker,
+                            G_esdt_info.decimals)) {
         return ERR_PRETTY_FAILED;
     }
 

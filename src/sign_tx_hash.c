@@ -60,14 +60,14 @@ static bool sign_tx_hash(uint8_t *data_buffer) {
 }
 
 static bool is_esdt_transfer() {
-    bool identifier_len_valid = esdt_info.identifier_len > 0;
+    bool identifier_len_valid = G_esdt_info.identifier_len > 0;
     bool has_data = strlen(tx_context.data) > 0;
     bool has_esdt_transfer_prefix = false;
     bool has_registered_esdt_identifier = false;
     bool next_char_after_identifier_is_at_separator = false;
     bool same_chainid = false;
 
-    if (!esdt_info.valid) {
+    if (!G_esdt_info.valid) {
         return false;
     }
 
@@ -77,16 +77,16 @@ static bool is_esdt_transfer() {
                                            ESDT_TRANSFER_PREFIX_LENGTH) == 0;
         has_registered_esdt_identifier =
             strncmp(tx_context.data + DATA_SIZE_LEN - 1 + ESDT_TRANSFER_PREFIX_LENGTH,
-                    esdt_info.identifier,
-                    esdt_info.identifier_len) == 0;
+                    G_esdt_info.identifier,
+                    G_esdt_info.identifier_len) == 0;
 
         size_t identifier_end_position =
-            DATA_SIZE_LEN - 1 + ESDT_TRANSFER_PREFIX_LENGTH + esdt_info.identifier_len;
+            DATA_SIZE_LEN - 1 + ESDT_TRANSFER_PREFIX_LENGTH + G_esdt_info.identifier_len;
         next_char_after_identifier_is_at_separator =
             (strlen(tx_context.data) > identifier_end_position) &&
             (tx_context.data[identifier_end_position] == '@');
 
-        same_chainid = strncmp(tx_context.chain_id, esdt_info.chain_id, MAX_CHAINID_LEN) == 0;
+        same_chainid = strncmp(tx_context.chain_id, G_esdt_info.chain_id, MAX_CHAINID_LEN) == 0;
     }
 
     return has_esdt_transfer_prefix && has_registered_esdt_identifier &&
@@ -120,7 +120,7 @@ static void start_review(void) {
     uint8_t step = 0;
 
     if (should_display_esdt_flow) {
-        pairs_list[step].item = "Token", pairs_list[step].value = esdt_info.ticker, ++step;
+        pairs_list[step].item = "Token", pairs_list[step].value = G_esdt_info.ticker, ++step;
         pairs_list[step].item = "Value", pairs_list[step].value = tx_context.amount, ++step;
         pairs_list[step].item = "Receiver", pairs_list[step].value = tx_context.receiver, ++step;
         pairs_list[step].item = "Fee", pairs_list[step].value = tx_context.fee, ++step;
@@ -184,7 +184,7 @@ UX_STEP_NOCB(ux_transfer_esdt_flow_24_step,
              bnnn_paging,
              {
                  .title = "Token",
-                 .text = esdt_info.ticker,
+                 .text = G_esdt_info.ticker,
              });
 UX_STEP_NOCB(ux_transfer_esdt_flow_25_step,
              bnnn_paging,
