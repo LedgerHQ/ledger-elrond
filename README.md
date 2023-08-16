@@ -72,15 +72,11 @@ Also, please note that on Windows you might receive the _Unknown publisher_ warn
 
 ### Build and load applications to device via ledger-app-builder Docker image
 As an alternative to install and maintain many packages on your machine, Ledger applications can be built and loaded 
-into the device by using the _ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder_ Docker image.
+into the device by using the _ledger-app-builder_. How to build it: https://developers.ledger.com/docs/nano-app/build/
 
-First, you need to pull the docker image
+After _ledger-app-builder_ is installed, go to the repository root and run this command:
 ```
-docker pull ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-```
-After that, go to the repository's root and run this command:
-```
-docker run --rm -ti -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath .):/app" --privileged ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+docker run --rm -ti -v "/dev/bus/usb:/dev/bus/usb" -v "$(realpath .):/app" --privileged ledger-app-builder:latest
 ```
 
 When in the container, run this to load the app onto the device:
@@ -89,12 +85,7 @@ When in the container, run this to load the app onto the device:
 Or this to remove it:
 ```$ make delete```
 
-If you want to check the build process for a specific device:
-- Nano S: `$make load && make BOLOS_SDK=$NANOS_SDK`
-- Nano X `$make load && make BOLOS_SDK=$NANOX_SDK`
-- Stax: `$make load && make BOLOS_SDK=$STAX_SDK`
-
-Reference: https://github.com/LedgerHQ/ledger-app-builder
+Reference: https://developers.ledger.com/docs/nano-app/load/
 
 ### Install all dependencies (not recommended)
 To build locally, you must first clone this repository, then set up the development environment:
